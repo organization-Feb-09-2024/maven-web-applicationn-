@@ -1,0 +1,25 @@
+node {
+def mavenHome=tool name:'maven3.9.6'
+echo "job name: $JOB_NAME"
+properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '10', daysToKeepStr: '', numToKeepStr: '10')), [$class: 'JobLocalConfiguration', changeReasonComment: ''], pipelineTriggers([pollSCM('* * * * *')])])
+stage ('CheckOutCode'){
+git credentialsId: 'lalithagit6766', url: 'https://github.com/organization-Feb-09-2024/maven-web-applicationn-.git'
+}
+/*
+stage ('Build'){
+sh "${mavenHome}/bin/mvn clean"
+}
+stage ('sonarqube'){
+sh "${mavenHome}/bin/mvn clean package sonar:sonar"
+}
+stage ('Artifactory-nexus'){
+sh "${mavenHome}/bin/mvn deploy"
+}
+*/
+stage ('tomcatdeploywarfile'){
+sshagent(['ec2-user']) {
+    
+sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@54.255.205.160:/opt/tomcat9/webapps/"
+}
+}
+}
